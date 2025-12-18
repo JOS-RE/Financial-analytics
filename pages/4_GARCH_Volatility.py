@@ -11,78 +11,102 @@ st.title("🌪️ GARCH Volatility Modelling")
 # ---------------- Sidebar ----------------
 st.sidebar.header("Inputs")
 
-ticker = st.sidebar.selectbox(
-    "Select Bank",
-    ["HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS"]
+BANK_TICKERS = {
+    "HDFC Bank": "HDFCBANK.NS",
+    "ICICI Bank": "ICICIBANK.NS",
+    "State Bank of India": "SBIN.NS",
+    "Axis Bank": "AXISBANK.NS",
+    "Kotak Mahindra Bank": "KOTAKBANK.NS",
+    "IndusInd Bank": "INDUSINDBK.NS",
+    "Bank of Baroda": "BANKBARODA.NS"
+}
+
+selected_banks = st.sidebar.multiselect(
+    "Select Banks",
+    options=list(BANK_TICKERS.keys()),
+    default=[
+        "HDFC Bank",
+        "ICICI Bank",
+    ]
 )
+
+if len(selected_banks) == 0:
+    st.warning("Please select at least one bank.")
+    st.stop()
+
+if len(selected_banks) > 7:
+    st.warning("Please select up to 7 banks for optimal performance.")
+    st.stop()
+
+tickers = [BANK_TICKERS[bank] for bank in selected_banks]
 
 start_date = st.sidebar.date_input("Start Date", value=pd.to_datetime("2018-01-01"))
 end_date = st.sidebar.date_input("End Date")
 
 # ---------------- Data ----------------
-prices = get_price_data(ticker, start_date, end_date)
+prices = get_price_data(tickers, start_date, end_date)
 returns = get_returns(prices)
 
 st.subheader("Daily Returns")
-returns.columns = ["Daily Returns"]
+
+# Ensure proper column names
+if returns.shape[1] == 1:
+    returns.columns = [selected_banks[0]]
+
 st.line_chart(returns)
 
 
-
-
 # ---------------- GARCH ----------------
-# st.subheader("GARCH(1,1) Results")
-# garch_results = fit_garch(returns)
-# st.text(garch_results.summary())
+st.subheader("GARCH(1,1) Model Results by Bank")
 
-st.subheader("GARCH(1,1) Model Results")
+bank_tabs = st.tabs(list(returns.columns))
 
-garch_results = fit_garch(returns)
+for tab, bank in zip(bank_tabs, returns.columns):
+    with tab:
+        st.markdown(f"## 🏦 {bank}")
 
-# ---- Key Parameters Table ----
-params = garch_results.params
-pvalues = garch_results.pvalues
+        bank_returns = returns[bank].dropna()
+        garch_results = fit_garch(bank_returns)
 
-summary_df = (
-    pd.DataFrame({
-        "Parameter": params.index,
-        "Estimate": params.values.round(4),
-        "P-Value": pvalues.values.round(4)
-    })
-)
+        # ---- Key Parameters Table ----
+        params = garch_results.params
+        pvalues = garch_results.pvalues
 
-st.markdown("### 📌 Estimated Parameters")
-st.dataframe(summary_df, use_container_width=True)
+        summary_df = pd.DataFrame({
+            "Parameter": params.index,
+            "Estimate": params.values.round(4),
+            "P-Value": pvalues.values.round(4)
+        })
 
-# ---- Model Diagnostics ----
-st.markdown("### 📊 Model Diagnostics")
+        st.markdown("### 📌 Estimated Parameters")
+        st.dataframe(summary_df, use_container_width=True)
 
-col1, col2, col3 = st.columns(3)
+        # ---- Model Diagnostics ----
+        st.markdown("### 📊 Model Diagnostics")
 
-col1.metric("Log Likelihood", round(garch_results.loglikelihood, 2))
-col2.metric("AIC", round(garch_results.aic, 2))
-col3.metric("BIC", round(garch_results.bic, 2))
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Log Likelihood", round(garch_results.loglikelihood, 2))
+        col2.metric("AIC", round(garch_results.aic, 2))
+        col3.metric("BIC", round(garch_results.bic, 2))
 
-# ---- Full Summary (Expandable) ----
-with st.expander("📄 Full GARCH Summary"):
-    st.text(garch_results.summary())
+        # ---- Full Summary (Expandable) ----
+        with st.expander(f"📄 Full GARCH Summary – {bank}"):
+            st.text(garch_results.summary())
 
+        # ---- Volatility Plot ----
+        fig, ax = plt.subplots(figsize=(12, 4))
+        ax.plot(garch_results.conditional_volatility, label="Conditional Volatility")
+        ax.set_title(f"Estimated Conditional Volatility – {bank}")
+        ax.set_ylabel("Volatility")
+        ax.set_xlabel("Time")
+        ax.legend()
 
-# ---------------- Volatility Plot ----------------
-st.subheader("Conditional Volatility")
-
-fig, ax = plt.subplots(figsize=(12, 4))
-ax.plot(garch_results.conditional_volatility)
-ax.set_title("Estimated Conditional Volatility")
-ax.set_ylabel("Volatility")
-ax.set_xlabel("Time")
-
-st.pyplot(fig)
+        st.pyplot(fig)
 
 # ---------------- Interpretation ----------------
 st.markdown("""
 ### 📌 Interpretation
-- Volatility is **time-varying** and shows **clustering**
-- Periods of high volatility are followed by high volatility
-- GARCH effectively captures **risk persistence** in bank returns
+- Separate GARCH(1,1) models are estimated for each bank
+- Volatility exhibits **clustering and persistence**
+- Differences across banks reflect **heterogeneous risk dynamics**
 """)
