@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from utils.constants import BANK_TICKERS
 from utils.data_loader import get_price_data, get_returns
 from models.algo_trading import (
     sma_long_only, sma_short_only, sma_long_short,
@@ -10,35 +11,47 @@ from models.algo_trading import (
 )
 
 # ==================================================
+# =============== ACCESS CONTROL ===================
+# ==================================================
+if st.session_state.get("mode") != "trading":
+    st.warning("You did not select trading mode from the Home page.")
+    # st.stop()
+
+if "banks" not in st.session_state or not st.session_state.banks:
+    st.warning("Please select banks from the Home page.")
+    st.stop()
+
+st.caption("Workflow: Volatility → Trading Signals")
+
+# ==================================================
 # ================= PAGE SETUP =====================
 # ==================================================
 st.set_page_config(layout="wide")
 st.title("🤖 Algorithmic Trading Strategies")
 
 # ==================================================
-# ================= SIDEBAR =========================
+# =============== BANK SELECTION ===================
 # ==================================================
-st.sidebar.header("Inputs")
+selected_banks = st.session_state.banks
 
-BANK_TICKERS = {
-    "HDFC Bank": "HDFCBANK.NS",
-    "ICICI Bank": "ICICIBANK.NS",
-    "State Bank of India": "SBIN.NS",
-    "Axis Bank": "AXISBANK.NS",
-    "Kotak Mahindra Bank": "KOTAKBANK.NS",
-    "IndusInd Bank": "INDUSINDBK.NS",
-    "Bank of Baroda": "BANKBARODA.NS"
-}
+st.sidebar.subheader("Bank Selection")
 
 bank = st.sidebar.selectbox(
-    "Select Bank",
-    list(BANK_TICKERS.keys()),
-    index=2
+    "Select Bank for Trading",
+    options=selected_banks
 )
 
 ticker = BANK_TICKERS[bank]
 
-start_date = st.sidebar.date_input("Start Date", value=pd.to_datetime("2021-01-01"))
+# ==================================================
+# ================= SIDEBAR ========================
+# ==================================================
+st.sidebar.subheader("Strategy Inputs")
+
+start_date = st.sidebar.date_input(
+    "Start Date",
+    value=pd.to_datetime("2021-01-01")
+)
 end_date = st.sidebar.date_input("End Date")
 
 rf = st.sidebar.number_input(
@@ -55,65 +68,50 @@ strategy_group = st.sidebar.selectbox(
 )
 
 # ==================================================
-# ================= DATA ============================
+# ================= DATA ===========================
 # ==================================================
-
 prices = get_price_data(ticker, start_date, end_date)
 
 if prices is None or prices.empty:
     st.error("No price data available for the selected inputs.")
     st.stop()
 
-# Ensure datetime index
 prices.index = pd.to_datetime(prices.index)
-
-# Extract clean price series
 price_series = prices.iloc[:, 0].astype(float).dropna()
 
-# Compute returns
 returns = get_returns(price_series.to_frame()).iloc[:, 0].dropna()
 
 # ---------------- Buy & Hold Benchmark ----------------
 bh_ann_return = ((returns.mean() + 1) ** 252 - 1) * 100
 bh_std = returns.std() * (252 ** 0.5) * 100
-# ---------------- Price Plot (Minimalist) ----------------
+
+# ==================================================
+# ================= PRICE PLOT =====================
+# ==================================================
 st.subheader(f"📈 Price Series – {bank}")
 
 fig, ax = plt.subplots(figsize=(10, 4))
 
-ax.plot(
-    price_series.index,
-    price_series.values,
-    color="#F57C00",
-    linewidth=2
-)
-
+ax.plot(price_series, color="#F57C00", linewidth=2)
 ax.fill_between(
     price_series.index,
-    price_series.values,
+    price_series,
     price_series.rolling(20).min(),
     color="#F57C00",
     alpha=0.15
 )
 
 ax.set_title(f"{bank} Price Movement")
-ax.set_xlabel("")
-ax.set_ylabel("Price")
-
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 ax.grid(alpha=0.2)
 
 st.pyplot(fig)
 
-
-
 # ==================================================
-# =============== STRATEGY EXECUTION =================
+# =============== STRATEGY EXECUTION ===============
 # ==================================================
 results = []
-
-price_series = prices.iloc[:, 0]
 
 if strategy_group == "SMA (7,14)":
     results.append(sma_long_only(price_series, returns, rf=rf))
@@ -129,15 +127,15 @@ else:
     results.append(custom_triple_sma(price_series, returns, rf=rf))
 
 # ==================================================
-# =============== SUMMARY TABLE =====================
+# =============== SUMMARY TABLE ====================
 # ==================================================
 st.subheader("📊 Strategy Performance Summary")
 
 summary_df = pd.DataFrame([
     {
         "Strategy": r["Strategy"],
-        "Annualized Return (%)": round(r["AnnualizedReturn"], 2),
-        "Std Dev (%)": round(r["StdDev"], 2),
+        "Annualized Return (%)": f"{r['AnnualizedReturn']:.2f}%",
+        "Volatility (Std Dev %)": f"{r['StdDev']:.2f}%",
         "Sharpe Ratio": round(r["SharpeRatio"], 3),
         "Number of Trades": int(r["Trades"])
     }
@@ -147,19 +145,9 @@ summary_df = pd.DataFrame([
 st.dataframe(summary_df, use_container_width=True)
 
 # ==================================================
-# =============== KEY METRIC (SINGLE STRATEGY) ======
+# =============== COMPARISON PLOTS =================
 # ==================================================
-if len(summary_df) == 1:
-    st.subheader("📌 Key Performance Metric")
-    st.metric(
-        "Sharpe Ratio",
-        summary_df["Sharpe Ratio"].iloc[0]
-    )
-
-# ==================================================
-# =============== COMPARISON PLOTS ==================
-# ==================================================
-if len(summary_df) > 1:
+if len(results) > 1:
     st.subheader("📈 Strategy Comparison")
 
     col1, col2 = st.columns(2)
@@ -168,12 +156,11 @@ if len(summary_df) > 1:
         fig, ax = plt.subplots(figsize=(6, 4))
         ax.barh(
             summary_df["Strategy"],
-            summary_df["Annualized Return (%)"],
+            [float(x.replace("%", "")) for x in summary_df["Annualized Return (%)"]],
             color="#FB8C00",
             alpha=0.85
         )
-        ax.set_title("Annualized Return (%)", fontweight="bold")
-
+        ax.set_title("Annualized Return (%)")
         st.pyplot(fig)
 
     with col2:
@@ -185,27 +172,24 @@ if len(summary_df) > 1:
             alpha=0.85
         )
         ax.axvline(0, linestyle="--", color="gray", alpha=0.6)
-        ax.set_title("Sharpe Ratio", fontweight="bold")
-
+        ax.set_title("Sharpe Ratio")
         st.pyplot(fig)
 
 # ==================================================
-# =============== RISK–RETURN SCATTER ===============
+# =============== RISK–RETURN ======================
 # ==================================================
-if len(summary_df) > 1:
+if len(results) > 1:
     st.subheader("⚖️ Risk–Return Comparison")
 
-    fig, ax = plt.subplots(figsize=(3, 2))
+    fig, ax = plt.subplots(figsize=(4, 3))
 
-    # Strategy points
     ax.scatter(
-        summary_df["Std Dev (%)"],
-        summary_df["Annualized Return (%)"],
+        [r["StdDev"] for r in results],
+        [r["AnnualizedReturn"] for r in results],
         s=100,
         label="Strategies"
     )
 
-    # Buy & Hold
     ax.scatter(
         bh_std,
         bh_ann_return,
@@ -214,31 +198,30 @@ if len(summary_df) > 1:
         label="Buy & Hold"
     )
 
-    for _, row in summary_df.iterrows():
+    for r in results:
         ax.annotate(
-            row["Strategy"],
-            (row["Std Dev (%)"], row["Annualized Return (%)"]),
-            fontsize=6,
+            r["Strategy"],
+            (r["StdDev"], r["AnnualizedReturn"]),
+            fontsize=7,
             xytext=(5, 5),
             textcoords="offset points"
         )
 
     ax.set_xlabel("Risk (Std Dev %)")
     ax.set_ylabel("Annualized Return (%)")
-    ax.set_title("Risk–Return Profile")
     ax.legend()
 
     st.pyplot(fig)
-else:
-    st.info(
-        "Risk–return plots are most meaningful in a comparative setting. "
-        "For a single strategy, refer to Sharpe ratio and cumulative returns below."
-    )
 
 # ==================================================
-# ============ STRATEGY DETAILS =====================
+# ============ STRATEGY DETAILS ====================
 # ==================================================
 st.subheader("🔍 Strategy Details")
+st.info(
+    "⬇️ Expand the sections below to explore **strategy-level signals, indicators, "
+    "and cumulative performance vs Buy & Hold**."
+)
+
 
 for r in results:
     with st.expander(f"📌 {r['Strategy']}"):
@@ -246,47 +229,51 @@ for r in results:
 
         col1, col2 = st.columns(2)
 
-        # ---------- Price & Indicators ----------
         with col1:
             fig, ax = plt.subplots(figsize=(6, 4))
             ax.plot(df["Price"], label="Price", color="black")
-
             for col in df.columns:
                 if col.startswith("SMA"):
                     ax.plot(df[col], linestyle="--", label=col)
-
-            ax.set_title("Price & Indicators")
             ax.legend()
+            ax.set_title("Price & Indicators")
             st.pyplot(fig)
 
-        # ---------- RSI or Cumulative Returns ----------
         with col2:
             if "RSI" in df.columns:
                 fig, ax = plt.subplots(figsize=(6, 4))
-                ax.plot(df["RSI"], color="purple", label="RSI")
+                ax.plot(df["RSI"], color="purple")
                 ax.axhline(70, linestyle="--", color="red")
                 ax.axhline(30, linestyle="--", color="green")
                 ax.set_title("RSI Indicator")
                 st.pyplot(fig)
             else:
-                df["Cumulative Strategy Return"] = (1 + df["AlgoRet"]).cumprod() - 1
-                df["Cumulative Buy & Hold"] = (1 + df["Returns"]).cumprod() - 1
+                df["Strategy Line"] = (1 + df["AlgoRet"]).cumprod() - 1
+                df["Buy & Hold Line"] = (1 + df["Returns"]).cumprod() - 1
 
                 fig, ax = plt.subplots(figsize=(6, 4))
-                ax.plot(df["Cumulative Strategy Return"], label="Strategy")
-                ax.plot(df["Cumulative Buy & Hold"], label="Buy & Hold")
+                ax.plot(df["Strategy Line"], label="Strategy")
+                ax.plot(df["Buy & Hold Line"], label="Buy & Hold")
                 ax.legend()
                 ax.set_title("Cumulative Returns")
                 st.pyplot(fig)
 
 # ==================================================
-# =============== INTERPRETATION ====================
+# =============== INTERPRETATION ===================
 # ==================================================
 st.markdown("""
 ### 📌 Interpretation
-- Technical trading strategies are evaluated under consistent assumptions.
-- Long-only, short-only, and long–short variants highlight directional sensitivity.
-- Risk–return analysis is presented **only in comparative settings**.
-- Single-strategy evaluation focuses on **Sharpe ratio and benchmark comparison**.
-- Detailed plots reveal signal behaviour, holding periods, and robustness.
+
+**Strategy Line**
+- Represents cumulative returns from rule-based trading.
+- Capital is deployed only when signals are active.
+- Captures timing and execution efficiency.
+
+**Buy & Hold Line**
+- Represents passive investment over the same period.
+- Serves as the benchmark for performance comparison.
+
+**Key Insight**
+- Strategy outperforming Buy & Hold indicates alpha.
+- Smoother curves imply risk reduction even with similar returns.
 """)
