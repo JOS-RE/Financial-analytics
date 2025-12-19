@@ -1,6 +1,13 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
+import streamlit as st
+
+@st.cache_data(show_spinner=False)
+def get_price_data(tickers, start, end):
+    ...
+
+
 
 def get_price_data(tickers, start, end):
     """
