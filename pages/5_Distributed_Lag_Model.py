@@ -155,26 +155,42 @@ col2.metric("p-value", round(p_value, 4))
 # ==================================================
 # ============ MEAN & WEIGHTED LAG =================
 # ==================================================
-st.subheader("⏳ Lag Structure Interpretation")
+st.subheader("⏳ Lag Structure Summary")
 
-lag_indices = np.arange(1, max_lags + 1)
+lags = np.arange(1, max_lags + 1)
 
-coef_df = unrestricted_model.params.drop("const")
+# Extract unrestricted lag coefficients (exclude constant)
+coef_series = unrestricted_model.params.drop("const")
+coef_matrix = coef_series.values.reshape(len(indep_banks), max_lags)
 
-coef_matrix = coef_df.values.reshape(len(indep_banks), max_lags)
+for i, bank in enumerate(indep_banks):
 
-weighted_lags = {
-    bank: np.sum(lag_indices * coef_matrix[i]) / np.sum(coef_matrix[i])
-    if np.sum(coef_matrix[i]) != 0 else np.nan
-    for i, bank in enumerate(indep_banks)
-}
+    betas = coef_matrix[i]
 
-lag_table = pd.DataFrame({
-    "Bank": indep_banks,
-    "Weighted Lag": list(weighted_lags.values())
-})
+    # Mean lag (depends only on lag length)
+    mean_lag = lags.mean()
 
-st.dataframe(lag_table.round(2), use_container_width=True)
+    # Weighted lag (economic timing)
+    weighted_lag = (
+        np.sum(lags * betas) / np.sum(betas)
+        if np.sum(betas) != 0
+        else np.nan
+    )
+
+    st.markdown(f"**Spillover from {bank} → {dep_bank}**")
+
+    col1, col2 = st.columns(2)
+
+    col1.metric(
+        "Mean Lag",
+        round(mean_lag, 2)
+    )
+
+    col2.metric(
+        "Weighted Lag",
+        round(weighted_lag, 2)
+    )
+
 
 # ==================================================
 # ================== DLM vs VAR ====================
