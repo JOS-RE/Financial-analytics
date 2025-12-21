@@ -222,23 +222,51 @@ st.info(
     "and cumulative performance vs Buy & Hold**."
 )
 
-
 for r in results:
     with st.expander(f"📌 {r['Strategy']}"):
         df = r["Data"].copy()
 
         col1, col2 = st.columns(2)
 
+        # ---------- PRICE + INDICATORS + BUY/SELL ----------
         with col1:
             fig, ax = plt.subplots(figsize=(6, 4))
             ax.plot(df["Price"], label="Price", color="black")
+
             for col in df.columns:
                 if col.startswith("SMA"):
                     ax.plot(df[col], linestyle="--", label=col)
+
+            # --- Buy / Sell Signals (visual only) ---
+            if "Signal" in df.columns:
+                buys = df[df["Signal"] == 1]
+                sells = df[df["Signal"] == -1]
+
+                ax.scatter(
+                    buys.index,
+                    buys["Price"],
+                    marker="^",
+                    s=70,
+                    color="green",
+                    label="Buy",
+                    zorder=5
+                )
+
+                ax.scatter(
+                    sells.index,
+                    sells["Price"],
+                    marker="v",
+                    s=70,
+                    color="red",
+                    label="Sell",
+                    zorder=5
+                )
+
             ax.legend()
-            ax.set_title("Price & Indicators")
+            ax.set_title("Price, Indicators & Trade Signals")
             st.pyplot(fig)
 
+        # ---------- INDICATOR / PERFORMANCE ----------
         with col2:
             if "RSI" in df.columns:
                 fig, ax = plt.subplots(figsize=(6, 4))
