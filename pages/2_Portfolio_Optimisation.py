@@ -39,6 +39,8 @@ st.title("📈 Portfolio Optimisation (Long-Only)")
 # ==================================================
 # ================= SIDEBAR ========================
 # ==================================================
+st.sidebar.image("assets/NMIMS_B.png", use_container_width=True)
+
 st.sidebar.header("Optimisation Inputs")
 
 # -------- Bank Selection (Portfolio-only) --------
@@ -75,6 +77,10 @@ rf_daily = rf / 252
 
 selected_banks = portfolio_banks
 tickers = [BANK_TICKERS[b] for b in selected_banks]
+
+st.sidebar.image("assets/logo2.png", use_container_width=True)
+st.sidebar.markdown("---")
+
 
 # ==================================================
 # ================= DATA ============================

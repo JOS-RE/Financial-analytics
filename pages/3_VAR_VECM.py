@@ -34,6 +34,8 @@ st.title("🔗 VAR / VECM – Inter-Bank Dynamics")
 # ==================================================
 # ================= SIDEBAR ========================
 # ==================================================
+st.sidebar.image("assets/NMIMS_B.png", use_container_width=True)
+
 st.sidebar.header("Model Configuration")
 
 start_date = st.sidebar.date_input(
@@ -69,6 +71,9 @@ model_type = st.sidebar.radio(
     "Model Type",
     ["VAR", "VECM"]
 )
+
+st.sidebar.image("assets/logo2.png", use_container_width=True)
+st.sidebar.markdown("---")
 
 # ==================================================
 # ================= DATA ============================

@@ -34,6 +34,7 @@ st.caption(
 # ==================================================
 # ================= SIDEBAR ========================
 # ==================================================
+st.sidebar.image("assets/NMIMS_B.png", use_container_width=True)
 st.sidebar.header("DLM Inputs")
 
 selected_banks = st.session_state.banks
@@ -65,6 +66,10 @@ start_date = st.sidebar.date_input(
     value=pd.to_datetime("2018-01-01")
 )
 end_date = st.sidebar.date_input("End Date")
+
+st.sidebar.image("assets/logo2.png", use_container_width=True)
+st.sidebar.markdown("---")
+
 
 # ==================================================
 # ================= DATA ===========================

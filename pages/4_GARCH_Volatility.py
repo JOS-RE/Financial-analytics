@@ -27,6 +27,8 @@ st.caption("Workflow: Volatility → Trading Signals")
 # ==================================================
 # ================= SIDEBAR ========================
 # ==================================================
+st.sidebar.image("assets/NMIMS_B.png", use_container_width=True)
+
 st.sidebar.header("Model Inputs")
 
 # ---- Bank selector (override Home selection) ----
@@ -50,6 +52,10 @@ start_date = st.sidebar.date_input(
     value=pd.to_datetime("2018-01-01")
 )
 end_date = st.sidebar.date_input("End Date")
+
+st.sidebar.image("assets/logo2.png", use_container_width=True)
+st.sidebar.markdown("---")
+
 
 # ==================================================
 # ================= DATA ===========================

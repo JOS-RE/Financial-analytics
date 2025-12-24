@@ -34,6 +34,8 @@ st.title("🤖 Algorithmic Trading Strategies")
 # ==================================================
 selected_banks = st.session_state.banks
 
+
+
 st.sidebar.subheader("Bank Selection")
 
 bank = st.sidebar.selectbox(
@@ -46,6 +48,7 @@ ticker = BANK_TICKERS[bank]
 # ==================================================
 # ================= SIDEBAR ========================
 # ==================================================
+st.sidebar.image("assets/NMIMS_B.png", use_container_width=True)
 st.sidebar.subheader("Strategy Inputs")
 
 start_date = st.sidebar.date_input(
@@ -66,6 +69,10 @@ strategy_group = st.sidebar.selectbox(
     "Strategy Group",
     ["SMA (7,14)", "RSI (14, 30–70)", "Custom Triple SMA"]
 )
+
+
+st.sidebar.image("assets/logo2.png", use_container_width=True)
+st.sidebar.markdown("---")
 
 # ==================================================
 # ================= DATA ===========================
