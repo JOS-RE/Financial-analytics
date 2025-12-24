@@ -40,4 +40,16 @@ The platform combines financial theory with real-world market data to support:
 | 🤖 **Algorithmic Trading** | ![SMA](https://img.shields.io/badge/SMA-7,14-grey?style=flat-square) ![RSI](https://img.shields.io/badge/RSI-14%20(30–70)-grey?style=flat-square) ![TripleSMA](https://img.shields.io/badge/Triple%20SMA-7,14,21-grey?style=flat-square) ![LongOnly](https://img.shields.io/badge/Strategy-Long%20Only-grey?style=flat-square) ![ShortOnly](https://img.shields.io/badge/Strategy-Short%20Only-grey?style=flat-square) ![LongShort](https://img.shields.io/badge/Strategy-Long–Short-grey?style=flat-square) |
 | 🔗 **Time Series & Econometrics** | ![VAR](https://img.shields.io/badge/VAR-Time%20Series-grey?style=flat-square) ![VECM](https://img.shields.io/badge/VECM-Cointegration-grey?style=flat-square) ![Johansen](https://img.shields.io/badge/Johansen-Test-grey?style=flat-square) ![DLM](https://img.shields.io/badge/DLM-Restricted%20%7C%20Unrestricted-grey?style=flat-square) ![FTest](https://img.shields.io/badge/F--Test-Model%20Comparison-grey?style=flat-square) ![MeanLag](https://img.shields.io/badge/Mean%20Lag-Estimation-grey?style=flat-square) ![WeightedLag](https://img.shields.io/badge/Weighted%20Lag-Estimation-grey?style=flat-square) |
 
+---
+
+<p align="center">
+  Open-source under the MIT License • Designed for academic and research use
+</p>
+
+
+<p align="center">
+  <img src="https://img.shields.io/badge/-Open Source-red?style=flat-square">
+  <img src="https://img.shields.io/badge/-Academic-orange?style=flat-square">
+  <img src="https://img.shields.io/badge/-Education-red?style=flat-square">
+</p>
 
