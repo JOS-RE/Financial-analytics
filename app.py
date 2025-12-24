@@ -83,7 +83,7 @@ selected_banks = st.multiselect(
 st.session_state.banks = selected_banks
 
 if st.session_state.banks:
-    st.success(f"🟠 {len(st.session_state.banks)} bank(s) selected")
+    st.success(f"🟠 {len(st.session_state.banks)} companies(s) selected")
 
 st.divider()
 
@@ -101,7 +101,7 @@ with col1:
 
     if st.button("📈 Go to Portfolio Optimisation", use_container_width=True):
         if not st.session_state.banks:
-            st.warning("Please select at least one bank.")
+            st.warning("Please select at least one Org.")
         else:
             st.session_state.mode = "long_term"
             st.switch_page("pages/2_Portfolio_Optimisation.py")
@@ -113,7 +113,7 @@ with col2:
 
     if st.button("🤖 Go to Trading", use_container_width=True):
         if not st.session_state.banks:
-            st.warning("Please select at least one bank.")
+            st.warning("Please select at least one Org.")
         else:
             st.session_state.mode = "trading"
             st.switch_page("pages/4_GARCH_Volatility.py")
@@ -125,7 +125,7 @@ with col3:
 
     if st.button("🔬 Go to Advanced Analysis", use_container_width=True):
         if len(st.session_state.banks) < 2:
-            st.warning("Please select at least two banks.")
+            st.warning("Please select at least two Orgs.")
         else:
             st.session_state.mode = "advanced"
             st.switch_page("pages/3_VAR_VECM.py")
