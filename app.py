@@ -134,15 +134,15 @@ with col3:
 # ================= STATUS =========================
 # ==================================================
 if st.session_state.banks:
-    st.info(f"**Selected Banks:** {', '.join(st.session_state.banks)}")
+    st.info(f"**Selected Companies:** {', '.join(st.session_state.banks)}")
 
 # ==================================================
 # ================= FOOTER =========================
 # ==================================================
-st.markdown("---")
+# st.markdown("---")
 
-if st.session_state.banks:
-    st.info(f"**Selected Companies:** {', '.join(st.session_state.banks)}")
+# if st.session_state.banks:
+#     st.info(f"**Selected Companies:** {', '.join(st.session_state.banks)}")
 
 st.markdown("""
 ---
