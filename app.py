@@ -71,10 +71,10 @@ st.divider()
 # ==================================================
 # =============== BANK SELECTION ===================
 # ==================================================
-st.subheader("Step 1: Select Banks")
+st.subheader("Step 1: Select Companies")
 
 selected_banks = st.multiselect(
-    "Choose banks for analysis",
+    "Choose companies for analysis",
     options=list(BANK_TICKERS.keys()),
     default=st.session_state.banks,
     key="bank_selector"
