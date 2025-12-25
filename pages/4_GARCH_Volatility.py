@@ -14,7 +14,7 @@ if st.session_state.get("mode") != "trading":
     # st.stop()
 
 if "banks" not in st.session_state or not st.session_state.banks:
-    st.warning("Please select banks from the Home page.")
+    st.warning("Please select the organisations from the Home page.")
     st.stop()
 
 # ==================================================
@@ -33,13 +33,13 @@ st.sidebar.header("Model Inputs")
 
 # ---- Bank selector (override Home selection) ----
 selected_banks_sidebar = st.sidebar.multiselect(
-    "Select Banks",
+    "Select Orgs",
     options=list(BANK_TICKERS.keys()),
     default=st.session_state.banks
 )
 
 if not selected_banks_sidebar:
-    st.sidebar.warning("Please select at least one bank.")
+    st.sidebar.warning("Please select at least one Org.")
     st.stop()
 
 # Update session state so next page inherits selection
@@ -80,7 +80,7 @@ st.line_chart(returns)
 # ==================================================
 # ================= GARCH MODELS ===================
 # ==================================================
-st.subheader("GARCH(1,1) Results by Bank")
+st.subheader("GARCH(1,1) Results by the organisation")
 
 bank_tabs = st.tabs(list(returns.columns))
 
@@ -151,9 +151,9 @@ for tab, bank in zip(bank_tabs, returns.columns):
 # ==================================================
 st.markdown("""
 ### 📌 Interpretation
-- Separate **GARCH(1,1)** models are estimated for each bank.
+- Separate **GARCH(1,1)** models are estimated for each organisation.
 - Volatility shows **clustering and persistence**, a core stylised fact of returns.
-- Differences across banks reflect **heterogeneous risk profiles**.
+- Differences across organisations reflect **heterogeneous risk profiles**.
 - These volatility estimates can directly inform **risk-aware trading strategies**.
 """)
 

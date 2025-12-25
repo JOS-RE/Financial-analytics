@@ -18,7 +18,7 @@ if st.session_state.get("mode") != "trading":
     # st.stop()
 
 if "banks" not in st.session_state or not st.session_state.banks:
-    st.warning("Please select banks from the Home page.")
+    st.warning("Please select the organisations from the Home page.")
     st.stop()
 
 st.caption("Workflow: Volatility → Trading Signals")
@@ -39,7 +39,7 @@ selected_banks = st.session_state.banks
 st.sidebar.subheader("Bank Selection")
 
 bank = st.sidebar.selectbox(
-    "Select Bank for Trading",
+    "Select Org for Trading",
     options=selected_banks
 )
 

@@ -19,13 +19,13 @@ from models.portfolio import (
 #     st.stop()
 
 if "banks" not in st.session_state or not st.session_state.banks:
-    st.warning("Please select banks from the Home page.")
+    st.warning("Please select the organisations from the Home page.")
     st.stop()
 
 selected_banks = st.session_state.banks
 
 if len(selected_banks) < 2:
-    st.warning("Please select at least two banks for portfolio optimisation.")
+    st.warning("Please select at least two Orgs for portfolio optimisation.")
     st.stop()
 
 tickers = [BANK_TICKERS[b] for b in selected_banks]
@@ -54,7 +54,7 @@ portfolio_banks = st.sidebar.multiselect(
 )
 
 if len(portfolio_banks) < 2:
-    st.sidebar.warning("Select at least two banks.")
+    st.sidebar.warning("Select at least two Orgs.")
     st.stop()
 
 # -------- Date Range --------

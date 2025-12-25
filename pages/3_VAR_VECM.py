@@ -14,13 +14,13 @@ if st.session_state.get("mode") != "advanced":
     # st.stop()
 
 if "banks" not in st.session_state or not st.session_state.banks:
-    st.warning("Please select banks from the Home page.")
+    st.warning("Please select the organisations from the Home page.")
     st.stop()
 
 selected_banks = st.session_state.banks
 
 if len(selected_banks) < 2:
-    st.warning("VAR / VECM requires at least two banks.")
+    st.warning("VAR / VECM requires at least two organisations.")
     st.stop()
 
 tickers = [BANK_TICKERS[b] for b in selected_banks]
@@ -204,7 +204,7 @@ if model_type == "VECM":
     st.markdown("""
     **Long-run interpretation:**  
     Cointegrating vectors define the equilibrium relationship
-    binding the selected banks over time.
+    binding the selected organisations over time.
     """)
 
     # ---------------- Short-Run ----------------
@@ -221,7 +221,7 @@ if model_type == "VECM":
     st.markdown("""
     **Short-run interpretation:**  
     - Significant negative coefficients indicate adjustment toward equilibrium  
-    - Banks with weak coefficients act as long-run leaders  
+    - Organisations with weak coefficients act as long-run leaders  
     - Others absorb short-run shocks
     """)
 

@@ -17,7 +17,7 @@ if st.session_state.get("mode") != "advanced":
     # st.stop()
 
 if "banks" not in st.session_state or len(st.session_state.banks) < 2:
-    st.warning("Please select at least two banks from the Home page.")
+    st.warning("Please select at least two organisations from the Home page.")
     st.stop()
 
 # ==================================================
@@ -27,8 +27,8 @@ st.set_page_config(layout="wide")
 st.title("⏱️ Distributed Lag Model (DLM)")
 
 st.caption(
-    "Objective: Analyse how lagged returns of multiple banks affect the "
-    "current returns of a target bank, and compare DLM with VAR dynamics."
+    "Objective: Analyse how lagged returns of multiple organisations affect the "
+    "current returns of a target organisation, and compare DLM with VAR dynamics."
 )
 
 # ==================================================
@@ -40,18 +40,18 @@ st.sidebar.header("DLM Inputs")
 selected_banks = st.session_state.banks
 
 dep_bank = st.sidebar.selectbox(
-    "Dependent Bank (Y)",
+    "Dependent Organisation (Y)",
     selected_banks
 )
 
 indep_banks = st.sidebar.multiselect(
-    "Independent Banks (X)",
+    "Independent Organisations (X)",
     [b for b in selected_banks if b != dep_bank],
     default=[b for b in selected_banks if b != dep_bank][:1]
 )
 
 if not indep_banks:
-    st.warning("Please select at least one independent bank.")
+    st.warning("Please select at least one independent organisation.")
     st.stop()
 
 max_lags = st.sidebar.slider(
@@ -219,8 +219,8 @@ st.dataframe(comparison_df, use_container_width=True)
 st.markdown("""
 ### 📌 Interpretation
 
-- The **unrestricted DLM** allows each bank’s lagged returns to have
-  a distinct and time-specific impact on the dependent bank.
+- The **unrestricted DLM** allows each organisation's lagged returns to have
+  a distinct and time-specific impact on the dependent organisation.
 - The **restricted DLM** enforces a smoother lag structure, testing
   whether timing granularity is statistically necessary.
 - The **F-test** evaluates whether the richer lag specification
@@ -229,5 +229,5 @@ st.markdown("""
 - Compared to VAR:
   - **DLM** provides clearer lag interpretation and directionality.
   - **VAR** captures feedback effects but with reduced lag clarity.
-- Together, they offer a **comprehensive view of inter-bank transmission**.
+- Together, they offer a **comprehensive view of inter-organisation transmission**.
 """)
