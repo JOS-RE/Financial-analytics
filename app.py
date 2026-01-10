@@ -178,7 +178,7 @@ st.markdown(
 
     **Programme:** MBA  
     **Institution:** SVKM’s Narsee Monjee Institute of Management Studies (NMIMS)  
-    **Project:** Financial Analytics Capstone – **FINA**
+    **Project:** Financial Analytics Capstone – **FINA** \n
     **Mentor:** Dr. Neha Chhabra Roy (Neha.ChhabraRoy@nmims.edu)
     """
 )
