@@ -162,7 +162,7 @@ import pandas as pd
 st.subheader("👥 Team – FINA")
 
 team_df = pd.DataFrame([
-    ["Joshith Reddy Gopidi", "joshithreedy.gopidi837@nmims.in"],
+    ["Joshith Reddy Gopidi", "joshithreddy.gopidi837@nmims.in"],
     ["Kavya T", "kavya.t701@nmims.in"],
     ["Sidharth Prakash", "sidharth.prakash383@nmims.in"],
     ["Sabarimayurnath U", "sabarimayurnath.u139@nmims.in"],
