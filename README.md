@@ -50,6 +50,6 @@ The platform combines financial theory with real-world market data to support:
 <p align="center">
   <img src="https://img.shields.io/badge/-Open Source-red?style=flat-square">
   <img src="https://img.shields.io/badge/-Academic-orange?style=flat-square">
-  <img src="https://img.shields.io/badge/-Education-red?style=flat-square">
+  <img src="https://img.shields.io/badge/-Education-red?style=flat-square"> 
 </p>
 
